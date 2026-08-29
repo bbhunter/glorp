@@ -530,7 +530,7 @@ func (view *ProxyView) writeRequest(e *modifier.Entry) {
 
 	switch e.Source {
 	case modifier.SourceBrowser:
-		fmt.Fprintf(view.requestBox, string(e.Request.Raw))
+		fmt.Fprint(view.requestBox, string(e.Request.Raw))
 		fmt.Fprint(view.requestBox, "\u2800")
 	default:
 		mv := messageview.New()
@@ -580,7 +580,7 @@ func (view *ProxyView) writeResponse(e *modifier.Entry) {
 
 	switch e.Source {
 	case modifier.SourceBrowser:
-		fmt.Fprintf(view.responseBox, string(e.Response.Raw))
+		fmt.Fprint(view.responseBox, string(e.Response.Raw))
 		fmt.Fprint(view.responseBox, "\u2800")
 	default:
 		reader := bytes.NewReader(e.Response.Raw)
