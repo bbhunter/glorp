@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -456,7 +457,14 @@ func buildRequest(cdpReq *network.Request) (*http.Request, error) {
 	if len(cdpReq.PostDataEntries) > 0 {
 		var sb strings.Builder
 		for _, entry := range cdpReq.PostDataEntries {
-			sb.WriteString(entry.Bytes)
+			// CDP delivers the request data base64 encoded.
+			// we decode
+			bytes, err := base64.StdEncoding.DecodeString(entry.Bytes)
+			if err != nil {
+				bytes = []byte(entry.Bytes)
+			}
+			sb.Write(bytes)
+
 		}
 		body = strings.NewReader(sb.String())
 	}
