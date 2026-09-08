@@ -382,9 +382,7 @@ func (c *Capture) Start() {
 	chromedp.ListenBrowser(c.mainCtx, func(ev any) {
 		switch ev := ev.(type) {
 		case *target.EventTargetCreated:
-			if ev.TargetInfo.Type == "page" {
-				go c.attachToTarget(ev.TargetInfo.TargetID)
-			}
+			go c.attachToTarget(ev.TargetInfo.TargetID, ev.TargetInfo.Type)
 		}
 	})
 
@@ -426,7 +424,7 @@ func (c *Capture) Start() {
 	}()
 }
 
-func (c *Capture) attachToTarget(targetID target.ID) {
+func (c *Capture) attachToTarget(targetID target.ID, targetType string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.targets[targetID] { // already attached
@@ -439,7 +437,7 @@ func (c *Capture) attachToTarget(targetID target.ID) {
 	tab := newTabCapture(ctx, cancel, c.logger)
 	err := chromedp.Run(tab.ctx)
 	if err != nil {
-		log.Printf("[!] Browser - init target %s: %s\n", targetID, err)
+		log.Printf("[!] Browser - init target %s (type=%s): %s\n", targetID, targetType, err)
 		cancel()
 		return
 	}
@@ -447,7 +445,7 @@ func (c *Capture) attachToTarget(targetID target.ID) {
 	chromedp.ListenTarget(ctx, tab.eventHandler)
 	err = tab.enableFetch()
 	if err != nil {
-		log.Printf("[!] Browser - enableFetch %s: %s\n", targetID, err)
+		log.Printf("[!] Browser - enableFetch %s (type=%s): %s\n", targetID, targetType, err)
 		cancel()
 	}
 }
